@@ -1,6 +1,8 @@
 import { atom } from "jotai";
 import { vectorTableSource, vectorTilesetSource } from "@deck.gl/carto";
 
+export type FillMode = "solid" | "byValue";
+
 export interface LayerConfig {
   id: string;
   tableName: string;
@@ -9,6 +11,9 @@ export interface LayerConfig {
   getFillColor?: number[];
   getLineColor?: number[];
   lineWidthMinPixels?: number;
+  visible?: boolean;
+  fillMode?: FillMode;
+  fillAttribute?: string; // For data-driven styling
 }
 
 const initialLayers: LayerConfig[] = [
@@ -18,6 +23,8 @@ const initialLayers: LayerConfig[] = [
     source: vectorTableSource,
     pointRadiusMinPixels: 3,
     getFillColor: [0, 150, 200],
+    visible: true,
+    fillMode: "solid",
   },
   {
     id: "sociodemographics",
@@ -26,6 +33,8 @@ const initialLayers: LayerConfig[] = [
     getFillColor: [100, 200, 100, 150],
     getLineColor: [50, 50, 50, 100],
     lineWidthMinPixels: 1,
+    visible: true,
+    fillMode: "solid",
   },
 ];
 

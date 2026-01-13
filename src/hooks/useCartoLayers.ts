@@ -37,34 +37,36 @@ export function useCartoLayers() {
   // 3. Layer Generation (The "Light" Lifting)
   // This runs on every style change but is cheap because 'data' is cached.
   return useMemo(() => {
-    return layersConfig.map((config) => {
-      const stableData = dataSources[config.id];
+    return layersConfig
+      .filter((config) => config.visible !== false) // Filter out hidden layers
+      .map((config) => {
+        const stableData = dataSources[config.id];
 
-      // Create triggers to tell WebGL what changed
-      const updateTriggers = {
-        getFillColor: config.getFillColor,
-        getLineColor: config.getLineColor,
-        getRadius: config.pointRadiusMinPixels,
-        getLineWidth: config.lineWidthMinPixels,
-      };
+        // Create triggers to tell WebGL what changed
+        const updateTriggers = {
+          getFillColor: config.getFillColor,
+          getLineColor: config.getLineColor,
+          getRadius: config.pointRadiusMinPixels,
+          getLineWidth: config.lineWidthMinPixels,
+        };
 
-      return new VectorTileLayer({
-        id: config.id,
-        data: stableData, // Stable reference!
+        return new VectorTileLayer({
+          id: config.id,
+          data: stableData, // Stable reference!
 
-        // Visual Props
-        pointRadiusMinPixels: config.pointRadiusMinPixels,
-        lineWidthMinPixels: config.lineWidthMinPixels,
-        getFillColor: config.getFillColor as
-          | [number, number, number]
-          | [number, number, number, number],
-        getLineColor: config.getLineColor as
-          | [number, number, number]
-          | [number, number, number, number],
+          // Visual Props
+          pointRadiusMinPixels: config.pointRadiusMinPixels,
+          lineWidthMinPixels: config.lineWidthMinPixels,
+          getFillColor: config.getFillColor as
+            | [number, number, number]
+            | [number, number, number, number],
+          getLineColor: config.getLineColor as
+            | [number, number, number]
+            | [number, number, number, number],
 
-        // Performance Optimization
-        updateTriggers,
+          // Performance Optimization
+          updateTriggers,
+        });
       });
-    });
   }, [layersConfig, dataSources]);
 }
