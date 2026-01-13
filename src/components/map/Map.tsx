@@ -1,9 +1,8 @@
 import { useEffect, useRef } from "react";
-import { useAtomValue } from "jotai";
 import maplibregl from "maplibre-gl";
 import { Deck } from "@deck.gl/core";
-import { BASEMAP, VectorTileLayer } from "@deck.gl/carto";
-import { layersState } from "../../state/layers.state";
+import { BASEMAP } from "@deck.gl/carto";
+import { useCartoLayers } from "../../hooks/useCartoLayers";
 import "maplibre-gl/dist/maplibre-gl.css";
 
 const INITIAL_VIEW_STATE = {
@@ -19,7 +18,7 @@ export function Map() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const deckRef = useRef<Deck | null>(null);
   const mapRef = useRef<maplibregl.Map | null>(null);
-  const layersConfig = useAtomValue(layersState);
+  const layers = useCartoLayers();
 
   useEffect(() => {
     if (!mapContainerRef.current || !canvasRef.current) return;
@@ -57,39 +56,12 @@ export function Map() {
     };
   }, []);
 
-  // Update layers when layersConfig changes
+
+  // Update Deck instance when layers change
   useEffect(() => {
     if (!deckRef.current) return;
-
-    // Set the credentials to connect with CARTO
-    const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
-    const accessToken = import.meta.env.VITE_API_ACCESS_TOKEN;
-    const connectionName = "carto_dw";
-    const cartoConfig = { apiBaseUrl, accessToken, connectionName };
-
-    // Create layers from config
-    const layers = layersConfig.map((config) => {
-      const dataSource = config.source({
-        ...cartoConfig,
-        tableName: config.tableName,
-      });
-
-      return new VectorTileLayer({
-        id: config.id,
-        data: dataSource,
-        pointRadiusMinPixels: config.pointRadiusMinPixels,
-        getFillColor: config.getFillColor as
-          | [number, number, number]
-          | [number, number, number, number],
-        getLineColor: config.getLineColor as
-          | [number, number, number]
-          | [number, number, number, number],
-        lineWidthMinPixels: config.lineWidthMinPixels,
-      });
-    });
-
     deckRef.current.setProps({ layers });
-  }, [layersConfig]);
+  }, [layers]);
 
   return (
     <div style={{ position: "relative", width: "100%", height: "100%" }}>
