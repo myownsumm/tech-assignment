@@ -4,6 +4,7 @@ import { Deck } from '@deck.gl/core';
 import {
   BASEMAP,
   vectorTableSource,
+  vectorTilesetSource,
   VectorTileLayer,
 } from '@deck.gl/carto';
 import 'maplibre-gl/dist/maplibre-gl.css';
@@ -31,23 +32,34 @@ export function Map() {
     const connectionName = 'carto_dw';
     const cartoConfig = { apiBaseUrl, accessToken, connectionName };
 
-    // Create the source for the populated places dataset
-    const demoTableSource = vectorTableSource({
+    const retailStoresSource = vectorTableSource({
       ...cartoConfig,
-      tableName: 'carto-demo-data.demo_tables.populated_places',
+      tableName: 'carto-demo-data.demo_tables.retail_stores',
     });
 
-    // Initialize deck.gl with the dataset layer
+    const sociodemographicsSource = vectorTilesetSource({
+      ...cartoConfig,
+      tableName: 'carto-demo-data.demo_tilesets.sociodemographics_usa_blockgroup',
+    });
+
+    // Initialize deck.gl with the dataset layers
     const deck = new Deck({
       canvas: canvasRef.current,
       initialViewState: INITIAL_VIEW_STATE,
       controller: true,
       layers: [
         new VectorTileLayer({
-          id: 'places',
-          data: demoTableSource,
+          id: 'retail-stores',
+          data: retailStoresSource,
           pointRadiusMinPixels: 3,
-          getFillColor: [200, 0, 80],
+          getFillColor: [0, 150, 200],
+        }),
+        new VectorTileLayer({
+          id: 'sociodemographics',
+          data: sociodemographicsSource,
+          getFillColor: [100, 200, 100, 150],
+          getLineColor: [50, 50, 50, 100],
+          lineWidthMinPixels: 1,
         }),
       ],
     });
