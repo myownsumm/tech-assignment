@@ -1,0 +1,18 @@
+---
+description: Documentation standards and AI usage logging
+globs: README.md, *.md
+---
+
+# AI Usage Transparency
+
+- The assignment explicitly permits AI tools but requires documentation.
+- **Requirement**: If I ask you to generate complex logic, you must succinctly summarize the "methodology" or approach used in the response so I can copy it to the README.
+- **Prompts**: Keep track of major prompts used if requested, as these must be submitted.
+
+# Delivery
+
+- The final README must include:
+  1. Setup instructions.
+  2. Technical choices explanations (why you chose certain approaches).
+  3. Known limitations or improvements.
+  4. Public URL for the deployed app.

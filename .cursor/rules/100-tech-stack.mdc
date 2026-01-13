@@ -1,0 +1,19 @@
+---
+description: Technical stack, styling rules, and library constraints
+globs: *.{ts,tsx,json}
+---
+
+# Tech Stack
+
+- **Framework**: React with TypeScript.
+- **Maps**: `deck.gl` and `Carto Module` (strictly for handling layers).
+- **Data Source**: Layers come from tables stored in Google BigQuery (via CARTO).
+- Deck.gl documentation to follow: https://deck.gl/docs/api-reference/carto/overview
+- Carto Module documentation to follow: https://docs.carto.com/carto-for-developers/overview
+- Carto Build a pulic application HOWTO: https://docs.carto.com/carto-for-developers/guides/build-a-public-application
+
+# Styling Strategy
+
+- **Approach**: STRICTLY CSS-in-JS.
+- **Libraries**: Use MaterialUI v5 OR styled-components.
+- **Constraint**: Do not use plain CSS or SCSS files unless absolutely necessary for global resets.
