@@ -1,27 +1,19 @@
-import { Box, Paper } from '@mui/material';
-import { Map } from './components/Map';
-import './App.css';
+import { Box, Typography } from "@mui/material";
+import { Map } from "./components/map/Map";
+import "./App.css";
+import { LeftSidePanel } from "./components/layout/LeftSidePanel";
+import { MainContainer } from "./components/layout/MainContainer";
+import { LayersList } from "./components/layers/LayersList";
 
 function App() {
   return (
-    <Box sx={{ display: 'flex', height: '100vh', width: '100vw' }}>
-      <Paper
-        elevation={2}
-        sx={{
-          width: 320,
-          minWidth: 320,
-          height: '100%',
-          borderRadius: 0,
-          display: 'flex',
-          flexDirection: 'column',
-          zIndex: 1,
-        }}
-      >
-        {/* Panel content will go here */}
-      </Paper>
-      <Box sx={{ flex: 1, position: 'relative', overflow: 'hidden' }}>
+    <Box sx={{ display: "flex", height: "100vh", width: "100vw" }}>
+      <LeftSidePanel>
+        <LayersList />
+      </LeftSidePanel>
+      <MainContainer>
         <Map />
-      </Box>
+      </MainContainer>
     </Box>
   );
 }
