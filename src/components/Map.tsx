@@ -1,7 +1,11 @@
 import { useEffect, useRef } from 'react';
 import maplibregl from 'maplibre-gl';
 import { Deck } from '@deck.gl/core';
-import { BASEMAP } from '@deck.gl/carto';
+import {
+  BASEMAP,
+  vectorTableSource,
+  VectorTileLayer,
+} from '@deck.gl/carto';
 import 'maplibre-gl/dist/maplibre-gl.css';
 
 const INITIAL_VIEW_STATE = {
@@ -21,11 +25,31 @@ export function Map() {
   useEffect(() => {
     if (!mapContainerRef.current || !canvasRef.current) return;
 
-    // Initialize deck.gl
+    // Set the credentials to connect with CARTO
+    const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
+    const accessToken = import.meta.env.VITE_API_ACCESS_TOKEN;
+    const connectionName = 'carto_dw';
+    const cartoConfig = { apiBaseUrl, accessToken, connectionName };
+
+    // Create the source for the populated places dataset
+    const demoTableSource = vectorTableSource({
+      ...cartoConfig,
+      tableName: 'carto-demo-data.demo_tables.populated_places',
+    });
+
+    // Initialize deck.gl with the dataset layer
     const deck = new Deck({
       canvas: canvasRef.current,
       initialViewState: INITIAL_VIEW_STATE,
       controller: true,
+      layers: [
+        new VectorTileLayer({
+          id: 'places',
+          data: demoTableSource,
+          pointRadiusMinPixels: 3,
+          getFillColor: [200, 0, 80],
+        }),
+      ],
     });
 
     // Initialize MapLibre GL
