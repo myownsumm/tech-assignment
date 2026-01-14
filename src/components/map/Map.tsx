@@ -3,6 +3,7 @@ import maplibregl from "maplibre-gl";
 import { Deck } from "@deck.gl/core";
 import { BASEMAP } from "@deck.gl/carto";
 import { useCartoLayers } from "../../hooks/useCartoLayers";
+import { getTooltip } from "./tooltip";
 import "maplibre-gl/dist/maplibre-gl.css";
 
 const INITIAL_VIEW_STATE = {
@@ -29,6 +30,7 @@ export function Map() {
       initialViewState: INITIAL_VIEW_STATE,
       controller: true,
       layers: [],
+      getTooltip,
     });
 
     // Initialize MapLibre GL
