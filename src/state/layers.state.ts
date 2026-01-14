@@ -56,7 +56,7 @@ const initialLayers: LayerConfig[] = [
     fillMode: "solid",
     fillAttribute: "revenue",
     colorScale: {
-      domain: generateColorDomain(0, 500000, 200),
+      domain: generateColorDomain(1439945, 1539945, 2000), // data range is quite specific here
       colors: "PurpOr",
     },
   },
