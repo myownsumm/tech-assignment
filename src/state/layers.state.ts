@@ -45,21 +45,8 @@ export interface LayerConfig {
   colorScale?: ColorScaleConfig; // Color scale configuration for data-driven styling
 }
 
+// Order in config will determine layer order in the map
 const initialLayers: LayerConfig[] = [
-  {
-    id: "retail-stores",
-    tableName: "carto-demo-data.demo_tables.retail_stores",
-    source: vectorTableSource,
-    pointRadiusMinPixels: 3,
-    getFillColor: [0, 150, 200],
-    visible: true,
-    fillMode: "solid",
-    fillAttribute: "revenue",
-    colorScale: {
-      domain: generateColorDomain(1439945, 1539945, 2000), // data range is quite specific here
-      colors: "PurpOr",
-    },
-  },
   {
     id: "sociodemographics",
     tableName: "carto-demo-data.demo_tilesets.sociodemographics_usa_blockgroup",
@@ -73,6 +60,20 @@ const initialLayers: LayerConfig[] = [
     colorScale: {
       domain: generateColorDomain(0, 2000, 10),
       colors: "Mint",
+    },
+  },
+  {
+    id: "retail-stores",
+    tableName: "carto-demo-data.demo_tables.retail_stores",
+    source: vectorTableSource,
+    pointRadiusMinPixels: 3,
+    getFillColor: [255, 255, 0, 150],
+    visible: true,
+    fillMode: "solid",
+    fillAttribute: "revenue",
+    colorScale: {
+      domain: generateColorDomain(1439945, 1539945, 2000), // data range is quite specific here
+      colors: "PurpOr",
     },
   },
 ];

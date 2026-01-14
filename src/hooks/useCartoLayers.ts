@@ -40,79 +40,50 @@ export function useCartoLayers() {
     const layers = layersConfig
       .filter((config) => config.visible !== false)
       .map((config) => {
-        const stableData = dataSources[config.id];
+      const stableData = dataSources[config.id];
 
-        // Determine getFillColor based on fillMode
-        const getFillColor =
-          config.fillMode === "byValue" &&
-          config.fillAttribute &&
-          config.colorScale
-            ? colorBins({
-                attr: config.fillAttribute,
-                domain: config.colorScale.domain,
-                colors: config.colorScale.colors,
-              })
-            : config.getFillColor;
+      // Determine getFillColor based on fillMode
+      const getFillColor =
+        config.fillMode === "byValue" &&
+        config.fillAttribute &&
+        config.colorScale
+          ? colorBins({
+              attr: config.fillAttribute,
+              domain: config.colorScale.domain,
+              colors: config.colorScale.colors,
+            })
+          : config.getFillColor;
 
-        const updateTriggers = {
-          getFillColor: [
-            config.fillMode,
-            config.fillAttribute,
-            config.getFillColor,
-            config.colorScale,
-          ],
-          getLineColor: config.getLineColor,
-          getRadius: config.pointRadiusMinPixels,
-          getLineWidth: config.lineWidthMinPixels,
-        };
+      const updateTriggers = {
+        getFillColor: [
+          config.fillMode,
+          config.fillAttribute,
+          config.getFillColor,
+          config.colorScale,
+        ],
+        getLineColor: config.getLineColor,
+        getRadius: config.pointRadiusMinPixels,
+        getLineWidth: config.lineWidthMinPixels,
+      };
 
-        return new VectorTileLayer({
-          id: config.id,
-          data: stableData,
+      return new VectorTileLayer({
+        id: config.id,
+        data: stableData,
 
-          // Interaction
-          pickable: true,
-          autoHighlight: true,
-          highlightColor: [0, 255, 255, 255],
-          // TODO: Add uniqueIdProperty and pointRadiusUnits to the config, but it is not working for points.
+        // Interaction
+        pickable: true,
+        autoHighlight: true,
+        highlightColor: [0, 255, 255, 255],
+        // TODO: Add uniqueIdProperty and pointRadiusUnits to the config, but it is not working for points.
 
-          // Visual Props
-          pointRadiusMinPixels: config.pointRadiusMinPixels,
-          lineWidthMinPixels: config.lineWidthMinPixels,
-          getFillColor: getFillColor as any,
-          getLineColor: config.getLineColor as any,
+        // Visual Props
+        pointRadiusMinPixels: config.pointRadiusMinPixels,
+        lineWidthMinPixels: config.lineWidthMinPixels,
+        getFillColor: getFillColor as any,
+        getLineColor: config.getLineColor as any,
 
-          onHover: (info) => {
-            if (info.object) {
-            //   console.group(`🔍 Hover: ${config.id}`);
-            //   console.log("Object:", info.object);
-              console.log("Properties:", info.object.properties || {});
-            //   console.log("Coordinate:", info.coordinate);
-            //   console.log("Pixel:", { x: info.x, y: info.y });
-            //   console.log("Index:", info.index);
-            //   console.groupEnd();
-            }
-          },
-
-          updateTriggers,
-        });
+        updateTriggers,
       });
-
-    // Rule: Sociodemographics (Polygons) -> Bottom (Index 0)
-    //       Retail Stores (Points) -> Top (Index 1)
-    layers.sort((a, b) => {
-      const aId = a.id.toLowerCase();
-      const bId = b.id.toLowerCase();
-
-      // Push 'sociodemographics' to the bottom (negative index)
-      if (aId.includes("sociodemographics")) return -1;
-      if (bId.includes("sociodemographics")) return 1;
-
-      // Push 'retail' to the top (positive index)
-      if (aId.includes("retail")) return 1;
-      if (bId.includes("retail")) return -1;
-
-      return 0;
     });
 
     return layers;
