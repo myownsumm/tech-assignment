@@ -1,4 +1,4 @@
-import { Box, Typography } from "@mui/material";
+import { Box } from "@mui/material";
 import { Map } from "./components/map/Map";
 import "./App.css";
 import { LeftSidePanel } from "./components/layout/LeftSidePanel";

@@ -18,8 +18,17 @@ export function useCartoLayers() {
 
   // 2. Stable Data Sources (The "Heavy" Lifting)
   // This only re-runs if tableNames or IDs change, ignoring style changes.
+  // Extract layer identifiers to a stable dependency string
+  const layerIdentifiersKey = useMemo(
+    () =>
+      JSON.stringify(
+        layersConfig.map((c) => ({ id: c.id, table: c.tableName }))
+      ),
+    [layersConfig]
+  );
+
   const dataSources = useMemo(() => {
-    const sources: Record<string, any> = {};
+    const sources: Record<string, unknown> = {};
 
     layersConfig.forEach((config) => {
       sources[config.id] = config.source({
@@ -29,10 +38,8 @@ export function useCartoLayers() {
     });
 
     return sources;
-  }, [
-    cartoConfig,
-    JSON.stringify(layersConfig.map((c) => ({ id: c.id, table: c.tableName }))),
-  ]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [cartoConfig, layerIdentifiersKey]);
 
   // 3. Layer Generation (The "Light" Lifting)
   // This runs on every style change but is cheap because 'data' is cached.
@@ -68,7 +75,10 @@ export function useCartoLayers() {
 
       return new VectorTileLayer({
         id: config.id,
-        data: stableData,
+        data: stableData as
+          | import("@deck.gl/carto").TilejsonResult
+          | Promise<import("@deck.gl/carto").TilejsonResult>
+          | null,
 
         // Interaction
         pickable: true,
@@ -79,8 +89,14 @@ export function useCartoLayers() {
         // Visual Props
         pointRadiusMinPixels: config.pointRadiusMinPixels,
         lineWidthMinPixels: config.lineWidthMinPixels,
-        getFillColor: getFillColor as any,
-        getLineColor: config.getLineColor as any,
+        getFillColor: getFillColor as
+          | ((d: unknown) => [number, number, number, number])
+          | [number, number, number, number]
+          | undefined,
+        getLineColor: config.getLineColor as
+          | ((d: unknown) => [number, number, number, number])
+          | [number, number, number, number]
+          | undefined,
 
         updateTriggers,
       });
