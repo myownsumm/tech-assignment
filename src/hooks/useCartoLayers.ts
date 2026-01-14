@@ -82,6 +82,18 @@ export function useCartoLayers() {
           getFillColor: getFillColor as any,
           getLineColor: config.getLineColor as any,
 
+          onHover: (info) => {
+            if (info.object) {
+            //   console.group(`🔍 Hover: ${config.id}`);
+            //   console.log("Object:", info.object);
+              console.log("Properties:", info.object.properties || {});
+            //   console.log("Coordinate:", info.coordinate);
+            //   console.log("Pixel:", { x: info.x, y: info.y });
+            //   console.log("Index:", info.index);
+            //   console.groupEnd();
+            }
+          },
+
           updateTriggers,
         });
       });

@@ -8,6 +8,29 @@ export interface ColorScaleConfig {
   colors: string;
 }
 
+/**
+ * Generates a detailed domain array for color scales with fine granularity
+ * @param min - Minimum value
+ * @param max - Maximum value
+ * @param steps - Number of steps/breakpoints to generate
+ * @returns Array of domain values
+ */
+function generateColorDomain(
+  min: number,
+  max: number,
+  steps: number = 100
+): number[] {
+  const domain: number[] = [];
+  const range = max - min;
+  const stepSize = range / steps;
+
+  for (let i = 0; i <= steps; i++) {
+    domain.push(Math.round(min + stepSize * i));
+  }
+
+  return domain;
+}
+
 export interface LayerConfig {
   id: string;
   tableName: string;
@@ -33,7 +56,7 @@ const initialLayers: LayerConfig[] = [
     fillMode: "solid",
     fillAttribute: "revenue",
     colorScale: {
-      domain: [100000, 500000, 1000000, 5000000],
+      domain: generateColorDomain(0, 500000, 200),
       colors: "PurpOr",
     },
   },
@@ -45,10 +68,10 @@ const initialLayers: LayerConfig[] = [
     getLineColor: [50, 50, 50, 100],
     lineWidthMinPixels: 1,
     visible: true,
-    fillMode: "solid",
+    fillMode: "byValue",
     fillAttribute: "total_pop",
     colorScale: {
-      domain: [100, 500, 1000, 1100, 1200, 1300, 1400, 1500, 1600, 1700, 1800, 1900, 2000],
+      domain: generateColorDomain(0, 2000, 10),
       colors: "Mint",
     },
   },
@@ -64,7 +87,11 @@ export const layerByIdSelector = (layerId: string) =>
       const layers = get(layersState);
       const currentLayer = layers.find((layer) => layer.id === layerId);
       // Automatically set fillAttribute when fillMode changes to "byValue"
-      if (updates.fillMode === "byValue" && !updates.fillAttribute && currentLayer?.fillAttribute) {
+      if (
+        updates.fillMode === "byValue" &&
+        !updates.fillAttribute &&
+        currentLayer?.fillAttribute
+      ) {
         updates.fillAttribute = currentLayer.fillAttribute;
       }
       set(
