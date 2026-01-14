@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { useAtomValue } from "jotai";
-import { VectorTileLayer } from "@deck.gl/carto";
+import { VectorTileLayer, colorBins } from "@deck.gl/carto";
 import { layersState } from "../state/layers.state";
 
 export function useCartoLayers() {
@@ -42,8 +42,25 @@ export function useCartoLayers() {
       .map((config) => {
         const stableData = dataSources[config.id];
 
+        // Determine getFillColor based on fillMode
+        const getFillColor =
+          config.fillMode === "byValue" &&
+          config.fillAttribute &&
+          config.colorScale
+            ? colorBins({
+                attr: config.fillAttribute,
+                domain: config.colorScale.domain,
+                colors: config.colorScale.colors,
+              })
+            : config.getFillColor;
+
         const updateTriggers = {
-          getFillColor: config.getFillColor,
+          getFillColor: [
+            config.fillMode,
+            config.fillAttribute,
+            config.getFillColor,
+            config.colorScale,
+          ],
           getLineColor: config.getLineColor,
           getRadius: config.pointRadiusMinPixels,
           getLineWidth: config.lineWidthMinPixels,
@@ -62,7 +79,7 @@ export function useCartoLayers() {
           // Visual Props
           pointRadiusMinPixels: config.pointRadiusMinPixels,
           lineWidthMinPixels: config.lineWidthMinPixels,
-          getFillColor: config.getFillColor as any,
+          getFillColor: getFillColor as any,
           getLineColor: config.getLineColor as any,
 
           updateTriggers,

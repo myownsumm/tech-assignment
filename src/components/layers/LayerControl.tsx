@@ -6,10 +6,6 @@ import {
   Divider,
   ToggleButton,
   ToggleButtonGroup,
-  Select,
-  MenuItem,
-  FormControl,
-  InputLabel,
   Slider,
   TextField,
 } from "@mui/material";
@@ -82,9 +78,6 @@ export const LayerControl = ({ layerId }: LayerControlProps) => {
     }
   };
 
-  // Placeholder attributes for data-driven styling
-  const availableAttributes = ["revenue", "population", "density"];
-
   return (
     <Stack spacing={2}>
       {/* Fill Section */}
@@ -110,48 +103,12 @@ export const LayerControl = ({ layerId }: LayerControlProps) => {
             </ToggleButton>
           </ToggleButtonGroup>
 
-          {fillMode === "solid" ? (
+          {fillMode === "solid" && (
             <ColorPicker
               value={fillColor}
               onChange={handleFillColorChange}
               label="Color"
             />
-          ) : (
-            <Stack spacing={1}>
-              <FormControl fullWidth size="small">
-                <InputLabel>Attribute</InputLabel>
-                <Select
-                  value={layer.fillAttribute || ""}
-                  label="Attribute"
-                  onChange={(e) =>
-                    updateLayer({ fillAttribute: e.target.value })
-                  }
-                >
-                  {availableAttributes.map((attr) => (
-                    <MenuItem key={attr} value={attr}>
-                      {attr}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-              <Box
-                sx={{
-                  height: 40,
-                  background:
-                    "linear-gradient(to right, #ff0000, #ffff00, #00ff00, #00ffff, #0000ff)",
-                  border: "1px solid",
-                  borderColor: "divider",
-                  borderRadius: 1,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                }}
-              >
-                <Typography variant="caption" color="text.secondary">
-                  Color Ramp
-                </Typography>
-              </Box>
-            </Stack>
           )}
         </Stack>
       </Box>
