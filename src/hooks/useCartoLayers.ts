@@ -37,12 +37,11 @@ export function useCartoLayers() {
   // 3. Layer Generation (The "Light" Lifting)
   // This runs on every style change but is cheap because 'data' is cached.
   return useMemo(() => {
-    return layersConfig
-      .filter((config) => config.visible !== false) // Filter out hidden layers
+    const layers = layersConfig
+      .filter((config) => config.visible !== false)
       .map((config) => {
         const stableData = dataSources[config.id];
 
-        // Create triggers to tell WebGL what changed
         const updateTriggers = {
           getFillColor: config.getFillColor,
           getLineColor: config.getLineColor,
@@ -52,21 +51,41 @@ export function useCartoLayers() {
 
         return new VectorTileLayer({
           id: config.id,
-          data: stableData, // Stable reference!
+          data: stableData,
+
+          // Interaction
+          pickable: true,
+          autoHighlight: true,
+          highlightColor: [0, 255, 255, 255],
+          // TODO: Add uniqueIdProperty and pointRadiusUnits to the config, but it is not working for points.
 
           // Visual Props
           pointRadiusMinPixels: config.pointRadiusMinPixels,
           lineWidthMinPixels: config.lineWidthMinPixels,
-          getFillColor: config.getFillColor as
-            | [number, number, number]
-            | [number, number, number, number],
-          getLineColor: config.getLineColor as
-            | [number, number, number]
-            | [number, number, number, number],
+          getFillColor: config.getFillColor as any,
+          getLineColor: config.getLineColor as any,
 
-          // Performance Optimization
           updateTriggers,
         });
       });
+
+    // Rule: Sociodemographics (Polygons) -> Bottom (Index 0)
+    //       Retail Stores (Points) -> Top (Index 1)
+    layers.sort((a, b) => {
+      const aId = a.id.toLowerCase();
+      const bId = b.id.toLowerCase();
+
+      // Push 'sociodemographics' to the bottom (negative index)
+      if (aId.includes("sociodemographics")) return -1;
+      if (bId.includes("sociodemographics")) return 1;
+
+      // Push 'retail' to the top (positive index)
+      if (aId.includes("retail")) return 1;
+      if (bId.includes("retail")) return -1;
+
+      return 0;
+    });
+
+    return layers;
   }, [layersConfig, dataSources]);
 }
