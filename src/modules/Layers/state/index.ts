@@ -5,6 +5,7 @@ import { initialLayers } from "@modules/Layers/config/initialLayers";
 
 const _layersState = atom<LayerConfig[]>(initialLayers);
 const _layersListSelector = atom((get) => get(_layersState));
+const _expandedLayerAtom = atom<string | false>(initialLayers[0]?.id || false);
 
 const _layerByIdSelector = (layerId: string) =>
   atom(
@@ -32,3 +33,4 @@ const _layerByIdSelector = (layerId: string) =>
 export const useLayersList = () => useAtomValue(_layersListSelector);
 export const useLayer = (layerId: string) =>
   useAtom(_layerByIdSelector(layerId));
+export const useExpandedLayer = () => useAtom(_expandedLayerAtom);

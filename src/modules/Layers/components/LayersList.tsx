@@ -1,4 +1,3 @@
-import { useState } from "react";
 import {
   Accordion,
   AccordionSummary,
@@ -8,14 +7,12 @@ import {
   Switch,
 } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import { useLayersList, useLayer } from "@modules/Layers/state";
+import { useLayersList, useLayer, useExpandedLayer } from "@modules/Layers/state";
 import { LayerControl } from "./LayerControl";
 
 export const LayersList = () => {
   const layers = useLayersList();
-  const [expanded, setExpanded] = useState<string | false>(
-    layers[0]?.id || false
-  );
+  const [expanded, setExpanded] = useExpandedLayer();
 
   const handleChange =
     (panel: string) => (_event: React.SyntheticEvent, isExpanded: boolean) => {

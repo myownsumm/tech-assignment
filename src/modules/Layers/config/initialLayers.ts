@@ -53,7 +53,7 @@ export const initialLayers: LayerConfig[] = [
     pointRadiusMinPixels: 3,
     getFillColor: [255, 255, 0, 150],
     visible: true,
-    fillMode: "solid",
+    fillMode: "byValue",
     fillAttribute: "revenue",
     colorScale: {
       domain: generateColorDomain(1439945, 1539945, 2000), // data range is quite specific here
