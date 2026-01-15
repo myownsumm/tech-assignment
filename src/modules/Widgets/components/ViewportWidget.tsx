@@ -28,17 +28,16 @@ export function ViewportWidget({
   attribute,
 }: ViewportWidgetProps) {
   const [layer] = useLayer(layerId);
-
-  // Only show widget if layer exists and is visible
-  if (!layer || layer.visible === false) {
-    return null;
-  }
-
   const { value, count, loading } = useViewportStats({
     deckRef,
     layerId,
     attribute,
   });
+
+  // Only show widget if layer exists and is visible
+  if (!layer || layer.visible === false) {
+    return null;
+  }
 
   return (
     <Paper
