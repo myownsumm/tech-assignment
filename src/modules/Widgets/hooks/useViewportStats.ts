@@ -22,6 +22,7 @@ export function useViewportStats({
 
   const abortRef = useRef<AbortController | null>(null);
   const calculateStatsRef = useRef<(() => Promise<void>) | undefined>(undefined);
+  const lastBoundsRef = useRef<[number, number, number, number] | null>(null);
 
   // FE-only aggregation using CARTO tileset widgetSource (no SQL). Requires tiles to be loaded via onViewportLoad.
   const calculateStats = useCallback(async () => {
@@ -59,6 +60,18 @@ export function useViewportStats({
       return;
     }
 
+    // Check if bounds have changed to avoid unnecessary recalculations
+    const boundsChanged = lastBoundsRef.current === null || 
+      bounds[0] !== lastBoundsRef.current[0] || 
+      bounds[1] !== lastBoundsRef.current[1] || 
+      bounds[2] !== lastBoundsRef.current[2] || 
+      bounds[3] !== lastBoundsRef.current[3];
+
+    // Early return if bounds haven't changed (skip unnecessary recalculation)
+    if (!boundsChanged) {
+      return;
+    }
+
     const spatialFilter = createViewportSpatialFilter(bounds);
 
     abortRef.current?.abort();
@@ -81,6 +94,7 @@ export function useViewportStats({
       const value = typeof row?.value === "number" ? row.value : 0;
       const count = typeof row?.count === "number" ? row.count : 0;
 
+      lastBoundsRef.current = bounds;
       setStats({ value, count, loading: false });
     } catch (e) {
       if (e instanceof Error && e.name === "AbortError") return;
@@ -108,6 +122,7 @@ export function useViewportStats({
 
   // Poll lightly and debounce. This is "good enough" without wiring a viewState prop through React,
   // and the heavy work runs in the widgetSource worker/local impl (not via expensive GPU picking).
+  // TODO. Consider trying to use deck.onViewStateChange instead of polling.
   useEffect(() => {
     // Use interval longer than debounce delay so debounce can actually fire
     const interval = setInterval(() => {
