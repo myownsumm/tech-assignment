@@ -1,6 +1,5 @@
 import { Box } from "@mui/material";
 import { Map } from "./components/map/Map";
-import "./App.css";
 import { LeftSidePanel } from "./components/layout/LeftSidePanel";
 import { MainContainer } from "./components/layout/MainContainer";
 import { LayersList } from "./components/layers/LayersList";
