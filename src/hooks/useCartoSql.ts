@@ -8,6 +8,10 @@ export interface UseCartoSqlResult<T = unknown> {
 
 /**
  * Executes a SQL query against CARTO SQL API
+ * 
+ * TODO. consider using https://docs.carto.com/carto-for-developers/guides/avoid-exposing-sql-queries-with-named-sources
+ *       instead of using the CARTO SQL API directly.
+ * 
  * @param sql - The SQL query to execute
  * @param enabled - Whether to run the query
  */
