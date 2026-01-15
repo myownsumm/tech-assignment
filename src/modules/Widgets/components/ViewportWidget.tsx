@@ -44,7 +44,7 @@ export function ViewportWidget({
     <Paper
       elevation={3}
       sx={{
-        position: "fixed",
+        position: "absolute",
         bottom: 20,
         left: 20,
         zIndex: 1000,
