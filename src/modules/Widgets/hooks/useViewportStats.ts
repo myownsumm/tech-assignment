@@ -1,19 +1,13 @@
 import { useEffect, useState, useRef, useCallback } from "react";
-import { Deck } from "@deck.gl/core";
 import { createViewportSpatialFilter } from "@carto/api-client";
 import debounce from "lodash.debounce";
-
-interface ViewportStats {
-  value: number;
-  count: number;
-  loading: boolean;
-}
-
-interface UseViewportStatsParams {
-  deckRef: React.RefObject<Deck | null>;
-  layerId: string;
-  attribute: string;
-}
+import type {
+  ViewportStats,
+  UseViewportStatsParams,
+  DeckWithViewports,
+  DeckLayer,
+  TilejsonResultWithWidgetSource,
+} from "@modules/Widgets/types";
 
 export function useViewportStats({
   deckRef,
@@ -31,33 +25,36 @@ export function useViewportStats({
 
   // FE-only aggregation using CARTO tileset widgetSource (no SQL). Requires tiles to be loaded via onViewportLoad.
   const calculateStats = useCallback(async () => {
-    const deck = deckRef.current;
+    const deck = deckRef.current as DeckWithViewports | null;
     if (!deck) {
       return;
     }
 
     // Find the layer instance by id from Deck props (these are the actual layer instances Deck is rendering)
-    const rootLayersRaw = deck.props.layers as any;
-    const rootLayers: any[] = Array.isArray(rootLayersRaw)
-      ? rootLayersRaw.flat(Infinity)
+    const rootLayersRaw = deck.props.layers as DeckLayer | DeckLayer[] | DeckLayer[][] | null | undefined;
+    const rootLayers: DeckLayer[] = Array.isArray(rootLayersRaw)
+      ? rootLayersRaw.flat(Infinity) as DeckLayer[]
+      : rootLayersRaw
+      ? [rootLayersRaw as DeckLayer]
       : [];
-    const layer: any = rootLayers.find((l: any) => l?.id === layerId);
+    const layer = rootLayers.find((l) => l?.id === layerId);
 
     const data = layer?.props?.data;
     if (!data) {
       return;
     }
 
-    const resolvedData: any = await Promise.resolve(data);
-    const widgetSource: any = resolvedData?.widgetSource;
+    const resolvedData = await Promise.resolve(data) as TilejsonResultWithWidgetSource | null;
+    const widgetSource = resolvedData?.widgetSource;
 
     // Only support tileset widgetSource (table widgetSource is remote and doesn't have loadTiles).
     if (!widgetSource || typeof widgetSource.loadTiles !== "function") {
       return;
     }
 
-    const vp: any = deck.getViewports?.()?.[0];
-    const bounds = vp?.getBounds?.();
+    const viewports = deck.getViewports?.();
+    const vp = viewports?.[0];
+    const bounds = vp?.getBounds();
     if (!bounds) {
       return;
     }
@@ -80,13 +77,13 @@ export function useViewportStats({
         signal: controller.signal,
       });
 
-      const row = res?.rows?.[0] || {};
-      const value = typeof row.value === "number" ? row.value : 0;
-      const count = typeof row.count === "number" ? row.count : 0;
+      const row = res?.rows?.[0];
+      const value = typeof row?.value === "number" ? row.value : 0;
+      const count = typeof row?.count === "number" ? row.count : 0;
 
       setStats({ value, count, loading: false });
-    } catch (e: any) {
-      if (e?.name === "AbortError") return;
+    } catch (e) {
+      if (e instanceof Error && e.name === "AbortError") return;
       setStats((prev) => ({ ...prev, value: 0, count: 0, loading: false }));
     }
   }, [deckRef, layerId, attribute]);
