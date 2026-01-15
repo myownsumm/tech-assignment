@@ -34,6 +34,7 @@ function generateColorDomain(
 export interface LayerConfig {
   id: string;
   tableName: string;
+  statsTableName?: string;
   source: typeof vectorTableSource | typeof vectorTilesetSource;
   pointRadiusMinPixels?: number;
   getFillColor?: number[];
@@ -50,6 +51,7 @@ const initialLayers: LayerConfig[] = [
   {
     id: "sociodemographics",
     tableName: "carto-demo-data.demo_tilesets.sociodemographics_usa_blockgroup",
+    statsTableName: undefined,
     source: vectorTilesetSource,
     getFillColor: [100, 200, 100, 150],
     getLineColor: [50, 50, 50, 100],
@@ -65,6 +67,7 @@ const initialLayers: LayerConfig[] = [
   {
     id: "retail-stores",
     tableName: "carto-demo-data.demo_tables.retail_stores",
+    statsTableName: "carto-demo-data.demo_tables.retail_stores",
     source: vectorTableSource,
     pointRadiusMinPixels: 3,
     getFillColor: [255, 255, 0, 150],

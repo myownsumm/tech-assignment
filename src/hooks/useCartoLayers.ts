@@ -2,6 +2,7 @@ import { useMemo } from "react";
 import { useAtomValue } from "jotai";
 import { VectorTileLayer, colorBins } from "@deck.gl/carto";
 import { layersState } from "../state/layers.state";
+import { COLOR_SCALES } from "../config/colorScales";
 
 export function useCartoLayers() {
   const layersConfig = useAtomValue(layersState);
@@ -50,14 +51,18 @@ export function useCartoLayers() {
       const stableData = dataSources[config.id];
 
       // Determine getFillColor based on fillMode
+      // Use COLOR_SCALES config if available, otherwise fall back to layer's colorScale
+      const colorScaleConfig =
+        config.fillMode === "byValue" && config.fillAttribute
+          ? COLOR_SCALES[config.fillAttribute] || config.colorScale
+          : null;
+
       const getFillColor =
-        config.fillMode === "byValue" &&
-        config.fillAttribute &&
-        config.colorScale
+        colorScaleConfig
           ? colorBins({
-              attr: config.fillAttribute,
-              domain: config.colorScale.domain,
-              colors: config.colorScale.colors,
+              attr: config.fillAttribute!,
+              domain: colorScaleConfig.domain,
+              colors: colorScaleConfig.colors,
             })
           : config.getFillColor;
 
@@ -67,6 +72,10 @@ export function useCartoLayers() {
           config.fillAttribute,
           config.getFillColor,
           config.colorScale,
+          // Include COLOR_SCALES config if using it
+          config.fillAttribute && COLOR_SCALES[config.fillAttribute]
+            ? COLOR_SCALES[config.fillAttribute]
+            : null,
         ],
         getLineColor: config.getLineColor,
         getRadius: config.pointRadiusMinPixels,
