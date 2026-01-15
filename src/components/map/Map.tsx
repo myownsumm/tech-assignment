@@ -4,7 +4,7 @@ import { Deck } from "@deck.gl/core";
 import { BASEMAP } from "@deck.gl/carto";
 import { useCartoLayers } from "../../hooks/useCartoLayers";
 import { getTooltip } from "./tooltip";
-import { LegendWidget } from "../widgets/LegendWidget";
+import { LegendWidgets } from "../widgets/LegendWidgets";
 import "maplibre-gl/dist/maplibre-gl.css";
 
 const INITIAL_VIEW_STATE = {
@@ -90,7 +90,7 @@ export function Map() {
           height: "100%",
         }}
       />
-      <LegendWidget />
+      <LegendWidgets />
     </div>
   );
 }

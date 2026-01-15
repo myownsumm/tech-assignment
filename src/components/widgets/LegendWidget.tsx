@@ -1,28 +1,21 @@
-import { useAtomValue } from "jotai";
 import { Paper, Typography, Box, Stack, Skeleton } from "@mui/material";
-import { layersState } from "../../state/layers.state";
+import type { LayerConfig } from "../../state/layers.state";
 import { COLOR_SCALES } from "../../config/colorScales";
 import { useHistogram } from "../../hooks/useHistogram";
 
-export function LegendWidget() {
-  const layers = useAtomValue(layersState);
+interface LegendWidgetProps {
+  layer: LayerConfig;
+}
 
-  // Find the visible layer that has fillMode === 'byValue'
-  const activeLayer = layers.find(
-    (layer) =>
-      layer.visible !== false &&
-      layer.fillMode === "byValue" &&
-      layer.fillAttribute
-  );
-
+export function LegendWidget({ layer }: LegendWidgetProps) {
   // Look up the color scale config for this attribute (may be undefined)
-  const colorScale = activeLayer?.fillAttribute
-    ? COLOR_SCALES[activeLayer.fillAttribute]
+  const colorScale = layer.fillAttribute
+    ? COLOR_SCALES[layer.fillAttribute]
     : undefined;
 
   // Only fetch histogram data if statsTableName is explicitly provided
   // If statsTableName is missing, show static legend (colors + labels only)
-  const hasStatsTable = !!activeLayer?.statsTableName;
+  const hasStatsTable = !!layer.statsTableName;
 
   // Always call hooks before any early returns
   const {
@@ -30,19 +23,14 @@ export function LegendWidget() {
     loading: histogramLoading,
     error: histogramError,
   } = useHistogram(
-    activeLayer?.statsTableName, // Use statsTableName directly instead of tableName
-    activeLayer?.fillAttribute,
+    layer.statsTableName, // Use statsTableName directly instead of tableName
+    layer.fillAttribute,
     colorScale?.domain,
     hasStatsTable && !!colorScale?.domain // Only enable fetch if statsTableName exists and domain is available
   );
 
-  // If no layer is in 'byValue' mode, hide widget
-  if (!activeLayer || !activeLayer.fillAttribute) {
-    return null;
-  }
-
   // If no color scale config found, hide widget
-  if (!colorScale) {
+  if (!colorScale || !layer.fillAttribute) {
     return null;
   }
 
@@ -86,13 +74,9 @@ export function LegendWidget() {
     <Paper
       elevation={3}
       sx={{
-        position: "fixed",
-        bottom: 20,
-        right: 20,
         p: 2,
         minWidth: 200,
         maxWidth: 280,
-        zIndex: 1000,
         backgroundColor: "background.paper",
       }}
     >
