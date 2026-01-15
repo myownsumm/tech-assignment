@@ -1,8 +1,8 @@
 import { Box } from "@mui/material";
-import { Map } from "./components/map/Map";
-import { LeftSidePanel } from "./components/layout/LeftSidePanel";
-import { MainContainer } from "./components/layout/MainContainer";
-import { LayersList } from "./components/layers/LayersList";
+import { Map } from "@modules/Map/components/Map";
+import { LeftSidePanel } from "@modules/Layout/components/LeftSidePanel";
+import { MainContainer } from "@modules/Layout/components/MainContainer";
+import { LayersList } from "@modules/Layers/components/LayersList";
 
 function App() {
   return (

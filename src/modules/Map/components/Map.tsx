@@ -2,9 +2,9 @@ import { useEffect, useRef } from "react";
 import maplibregl from "maplibre-gl";
 import { Deck } from "@deck.gl/core";
 import { BASEMAP } from "@deck.gl/carto";
-import { useCartoLayers } from "../../hooks/useCartoLayers";
+import { useCartoLayers } from "@modules/Layers/hooks/useCartoLayers";
 import { getTooltip } from "./tooltip";
-import { LegendWidgets } from "../widgets/LegendWidgets";
+import { LegendWidgets } from "@modules/Widgets/components/LegendWidgets";
 import "maplibre-gl/dist/maplibre-gl.css";
 
 const INITIAL_VIEW_STATE = {

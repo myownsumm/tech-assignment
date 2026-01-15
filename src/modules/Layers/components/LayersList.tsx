@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { useAtomValue, useAtom } from "jotai";
 import {
   Accordion,
   AccordionSummary,
@@ -9,11 +8,11 @@ import {
   Switch,
 } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import { layersState, layerByIdSelector } from "../../state/layers.state";
+import { useLayersList, useLayer } from "@modules/Layers/state";
 import { LayerControl } from "./LayerControl";
 
 export const LayersList = () => {
-  const layers = useAtomValue(layersState);
+  const layers = useLayersList();
   const [expanded, setExpanded] = useState<string | false>(
     layers[0]?.id || false
   );
@@ -48,7 +47,7 @@ const LayerAccordion = ({
   expanded,
   onExpandedChange,
 }: LayerAccordionProps) => {
-  const [layer, updateLayer] = useAtom(layerByIdSelector(layerId));
+  const [layer, updateLayer] = useLayer(layerId);
 
   if (!layer) return null;
 

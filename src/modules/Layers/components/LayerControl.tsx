@@ -1,4 +1,3 @@
-import { useAtom } from "jotai";
 import {
   Box,
   Typography,
@@ -12,7 +11,8 @@ import {
 import FormatColorFillIcon from "@mui/icons-material/FormatColorFill";
 import PaletteIcon from "@mui/icons-material/Palette";
 import RadioButtonUncheckedIcon from "@mui/icons-material/RadioButtonUnchecked";
-import { layerByIdSelector, type FillMode } from "../../state/layers.state";
+import { useLayer } from "@modules/Layers/state";
+import type { FillMode } from "@modules/Layers/types";
 import { ColorPicker } from "./ColorPicker";
 
 interface LayerControlProps {
@@ -20,7 +20,7 @@ interface LayerControlProps {
 }
 
 export const LayerControl = ({ layerId }: LayerControlProps) => {
-  const [layer, updateLayer] = useAtom(layerByIdSelector(layerId));
+  const [layer, updateLayer] = useLayer(layerId);
 
   if (!layer) {
     return <Typography color="error">Layer not found</Typography>;

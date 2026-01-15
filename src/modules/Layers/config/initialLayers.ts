@@ -1,12 +1,5 @@
-import { atom } from "jotai";
 import { vectorTableSource, vectorTilesetSource } from "@deck.gl/carto";
-
-export type FillMode = "solid" | "byValue";
-
-export interface ColorScaleConfig {
-  domain: number[];
-  colors: string;
-}
+import type { LayerConfig } from "@modules/Layers/types";
 
 /**
  * Generates a detailed domain array for color scales with fine granularity
@@ -31,23 +24,11 @@ function generateColorDomain(
   return domain;
 }
 
-export interface LayerConfig {
-  id: string;
-  tableName: string;
-  statsTableName?: string;
-  source: typeof vectorTableSource | typeof vectorTilesetSource;
-  pointRadiusMinPixels?: number;
-  getFillColor?: number[];
-  getLineColor?: number[];
-  lineWidthMinPixels?: number;
-  visible?: boolean;
-  fillMode?: FillMode;
-  fillAttribute?: string; // For data-driven styling
-  colorScale?: ColorScaleConfig; // Color scale configuration for data-driven styling
-}
-
-// Order in config will determine layer order in the map
-const initialLayers: LayerConfig[] = [
+/**
+ * Initial layers configuration.
+ * Order in this array determines layer order in the map.
+ */
+export const initialLayers: LayerConfig[] = [
   {
     id: "sociodemographics",
     tableName: "carto-demo-data.demo_tilesets.sociodemographics_usa_blockgroup",
@@ -80,29 +61,3 @@ const initialLayers: LayerConfig[] = [
     },
   },
 ];
-
-export const layersState = atom<LayerConfig[]>(initialLayers);
-
-// Selector function to get a layer by ID
-export const layerByIdSelector = (layerId: string) =>
-  atom(
-    (get) => get(layersState).find((layer) => layer.id === layerId),
-    (get, set, updates: Partial<LayerConfig>) => {
-      const layers = get(layersState);
-      const currentLayer = layers.find((layer) => layer.id === layerId);
-      // Automatically set fillAttribute when fillMode changes to "byValue"
-      if (
-        updates.fillMode === "byValue" &&
-        !updates.fillAttribute &&
-        currentLayer?.fillAttribute
-      ) {
-        updates.fillAttribute = currentLayer.fillAttribute;
-      }
-      set(
-        layersState,
-        layers.map((layer) =>
-          layer.id === layerId ? { ...layer, ...updates } : layer
-        )
-      );
-    }
-  );

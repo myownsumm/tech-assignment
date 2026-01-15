@@ -1,11 +1,10 @@
 import { useMemo } from "react";
-import { useAtomValue } from "jotai";
 import { VectorTileLayer, colorBins } from "@deck.gl/carto";
-import { layersState } from "../state/layers.state";
-import { COLOR_SCALES } from "../config/colorScales";
+import { useLayersList } from "@modules/Layers/state";
+import { COLOR_SCALES } from "@modules/Layers/config/colorScales";
 
 export function useCartoLayers() {
-  const layersConfig = useAtomValue(layersState);
+  const layersConfig = useLayersList();
 
   // 1. Stable Credentials
   const cartoConfig = useMemo(

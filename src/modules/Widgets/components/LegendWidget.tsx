@@ -1,7 +1,7 @@
 import { Paper, Typography, Box, Stack, Skeleton } from "@mui/material";
-import type { LayerConfig } from "../../state/layers.state";
-import { COLOR_SCALES } from "../../config/colorScales";
-import { useHistogram } from "../../hooks/useHistogram";
+import type { LayerConfig } from "@modules/Layers/types";
+import { COLOR_SCALES } from "@modules/Layers/config/colorScales";
+import { useHistogram } from "../hooks/useHistogram";
 
 interface LegendWidgetProps {
   layer: LayerConfig;

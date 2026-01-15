@@ -1,6 +1,5 @@
-import { useAtomValue } from "jotai";
 import { Box } from "@mui/material";
-import { layersState } from "../../state/layers.state";
+import { useLayersList } from "@modules/Layers/state";
 import { LegendWidget } from "./LegendWidget";
 
 /**
@@ -8,7 +7,7 @@ import { LegendWidget } from "./LegendWidget";
  * that has fillMode === 'byValue' and is visible
  */
 export function LegendWidgets() {
-  const layers = useAtomValue(layersState);
+  const layers = useLayersList();
 
   // Find all visible layers that have fillMode === 'byValue'
   const activeLayers = layers.filter(
