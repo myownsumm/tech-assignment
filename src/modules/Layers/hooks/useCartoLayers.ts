@@ -87,6 +87,15 @@ export function useCartoLayers() {
           | import("@deck.gl/carto").TilejsonResult
           | Promise<import("@deck.gl/carto").TilejsonResult>
           | null,
+        // Feed loaded tiles into CARTO widgetSource when available (tileset sources only).
+        // This enables FE-only widget calculations without running SQL queries.
+        onViewportLoad: (tiles) => {
+          Promise.resolve(stableData as any).then((resolved) => {
+            if (resolved?.widgetSource?.loadTiles) {
+              resolved.widgetSource.loadTiles(tiles);
+            }
+          });
+        },
 
         // Interaction
         pickable: true,

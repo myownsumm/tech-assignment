@@ -5,6 +5,7 @@ import { BASEMAP } from "@deck.gl/carto";
 import { useCartoLayers } from "@modules/Layers/hooks/useCartoLayers";
 import { getTooltip } from "./tooltip";
 import { LegendWidgets } from "@modules/Widgets/components/LegendWidgets";
+import { ViewportWidget } from "@modules/Widgets/components/ViewportWidget";
 import "maplibre-gl/dist/maplibre-gl.css";
 
 const INITIAL_VIEW_STATE = {
@@ -91,6 +92,11 @@ export function Map() {
         }}
       />
       <LegendWidgets />
+      <ViewportWidget
+        deckRef={deckRef}
+        layerId="sociodemographics"
+        attribute="total_pop"
+      />
     </div>
   );
 }

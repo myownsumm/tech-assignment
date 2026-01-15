@@ -1,0 +1,130 @@
+import { useEffect, useState, useRef, useCallback } from "react";
+import { Deck } from "@deck.gl/core";
+import { createViewportSpatialFilter } from "@carto/api-client";
+import debounce from "lodash.debounce";
+
+interface ViewportStats {
+  value: number;
+  count: number;
+  loading: boolean;
+}
+
+interface UseViewportStatsParams {
+  deckRef: React.RefObject<Deck | null>;
+  layerId: string;
+  attribute: string;
+}
+
+export function useViewportStats({
+  deckRef,
+  layerId,
+  attribute,
+}: UseViewportStatsParams): ViewportStats {
+  const [stats, setStats] = useState<ViewportStats>({
+    value: 0,
+    count: 0,
+    loading: false,
+  });
+
+  const abortRef = useRef<AbortController | null>(null);
+  const calculateStatsRef = useRef<(() => Promise<void>) | undefined>(undefined);
+
+  // FE-only aggregation using CARTO tileset widgetSource (no SQL). Requires tiles to be loaded via onViewportLoad.
+  const calculateStats = useCallback(async () => {
+    const deck = deckRef.current;
+    if (!deck) {
+      return;
+    }
+
+    // Find the layer instance by id from Deck props (these are the actual layer instances Deck is rendering)
+    const rootLayersRaw = deck.props.layers as any;
+    const rootLayers: any[] = Array.isArray(rootLayersRaw)
+      ? rootLayersRaw.flat(Infinity)
+      : [];
+    const layer: any = rootLayers.find((l: any) => l?.id === layerId);
+
+    const data = layer?.props?.data;
+    if (!data) {
+      return;
+    }
+
+    const resolvedData: any = await Promise.resolve(data);
+    const widgetSource: any = resolvedData?.widgetSource;
+
+    // Only support tileset widgetSource (table widgetSource is remote and doesn't have loadTiles).
+    if (!widgetSource || typeof widgetSource.loadTiles !== "function") {
+      return;
+    }
+
+    const vp: any = deck.getViewports?.()?.[0];
+    const bounds = vp?.getBounds?.();
+    if (!bounds) {
+      return;
+    }
+
+    const spatialFilter = createViewportSpatialFilter(bounds);
+
+    abortRef.current?.abort();
+    const controller = new AbortController();
+    abortRef.current = controller;
+
+    setStats((prev) => ({ ...prev, loading: true }));
+
+    try {
+      const res = await widgetSource.getAggregations({
+        aggregations: [
+          { column: attribute, operation: "sum", alias: "value" },
+          { column: "*", operation: "count", alias: "count" },
+        ],
+        spatialFilter,
+        signal: controller.signal,
+      });
+
+      const row = res?.rows?.[0] || {};
+      const value = typeof row.value === "number" ? row.value : 0;
+      const count = typeof row.count === "number" ? row.count : 0;
+
+      setStats({ value, count, loading: false });
+    } catch (e: any) {
+      if (e?.name === "AbortError") return;
+      setStats((prev) => ({ ...prev, value: 0, count: 0, loading: false }));
+    }
+  }, [deckRef, layerId, attribute]);
+
+  // Keep ref updated with latest calculateStats
+  useEffect(() => {
+    calculateStatsRef.current = calculateStats;
+  }, [calculateStats]);
+
+  // Debounce to prevent calculating on every frame during pan/zoom
+  const debouncedCalculateRef = useRef<ReturnType<typeof debounce> | null>(null);
+  useEffect(() => {
+    debouncedCalculateRef.current?.cancel();
+    const debouncedFn = debounce(() => {
+      calculateStatsRef.current?.();
+    }, 500);
+    debouncedCalculateRef.current = debouncedFn;
+    return () => {
+      debouncedCalculateRef.current?.cancel();
+    };
+  }, [layerId, attribute]); // Don't recreate debounce when calculateStats changes - it's stable
+
+  // Poll lightly and debounce. This is "good enough" without wiring a viewState prop through React,
+  // and the heavy work runs in the widgetSource worker/local impl (not via expensive GPU picking).
+  useEffect(() => {
+    // Use interval longer than debounce delay so debounce can actually fire
+    const interval = setInterval(() => {
+      if (deckRef.current && debouncedCalculateRef.current) {
+        debouncedCalculateRef.current();
+      }
+    }, 600); // Longer than debounce delay (500ms) so it can fire
+
+    return () => {
+      clearInterval(interval);
+      abortRef.current?.abort();
+      debouncedCalculateRef.current?.cancel();
+    };
+  }, [deckRef]);
+
+  return stats;
+}
