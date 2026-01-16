@@ -1,75 +1,66 @@
-# React + TypeScript + Vite
+# CARTO Front-End Technical Assignment
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+This project is a React-based geospatial application developed as part of the CARTO Front-End Engineer technical assignment. It demonstrates the ability to visualize map data, implement styling controls, and display data-driven widgets using `deck.gl` and `@deck.gl/carto`.
 
-Currently, two official plugins are available:
+## Public access URL
+https://tech-assignment-381985897488.europe-west1.run.app/
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Setup & Running
 
-## React Compiler
+1. **Install Dependencies:**
+   ```bash
+   npm install
+   ```
 
-The React Compiler is enabled on this template. See [this documentation](https://react.dev/learn/react-compiler) for more information.
+2. **Run Development Server:**
+   ```bash
+   npm run dev
+   ```
 
-Note: This will impact Vite dev & build performances.
+3. **Build for Production:**
+   ```bash
+   npm run build
+   ```
 
-## Expanding the ESLint configuration
+## Tech Stack & Architecture
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+- **Core:** React 18, TypeScript, Vite
+- **Map & Data:** `deck.gl`, `@deck.gl/carto`, `maplibre-gl`
+- **UI Framework:** Material UI v5 (`@mui/material`)
+- **State Management:** Jotai (Atomic state management for simplicity and performance)
+- **Architecture:** Feature-based modular structure (`src/modules/*`) separating concerns into:
+    - **Layers**: Configuration and state for map layers.
+    - **Map**: Core map component and interaction logic.
+    - **Widgets**: Data analysis components (Histogram, Viewport Stats).
+    - **Layout**: Application shell and sidebar.
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+## Features
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+### 1. Map Data Layers
+- **Retail Stores**: Visualized as a point layer from `carto-demo-data.demo_tables.retail_stores`.
+- **Sociodemographics**: Visualized as a polygon tileset layer from `carto-demo-data.demo_tilesets.sociodemographics_usa_blockgroup`.
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+### 2. Styling Controls
+A comprehensive sidebar allows users to customize layer visualization dynamically:
+- **Fill Styling**: Switch between "Solid" color and "By Value" (data-driven) coloring.
+- **Colors**: Custom ColorPicker for fill and outline colors.
+- **Dimensions**: Sliders and inputs for Outline Width and Point Radius.
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+### 3. Interactions
+- **Tooltip**: Hovering over features displays relevant attributes (e.g., store revenue, block group population).
+  - *Note: The current implementation (`tooltip.ts`) uses deck.gl's native `getTooltip` API with HTML strings as a base solution. For production, consider implementing a React factory to build tooltip components with proper Material UI styling. Additionally, debouncing logic should be enabled as the `onHover` callback is triggered frequently. Further investigation into deck.gl's API capabilities for performant tooltip rendering is recommended.
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+### 4. Widgets (Bonus)
+- **Viewport Statistics**: Dynamically aggregates data (Sum & Count) based on the current map viewport using the `widgetSource` API from the Carto module.
+  - *Implementation: Uses client-side widget source (`widgetSource.getAggregations`) to aggregate data directly from loaded tiles in the viewport. This approach leverages frontend data already available in the browser, avoiding additional server requests.*
+  - *Note: The current implementation (`useViewportStats.ts`) uses a polling method (interval-based) to refresh viewport statistics, as deck.gl's viewport state is not directly exposed through React props. This polling approach is debounced (500ms) to prevent excessive recalculations during map interactions. For production, this should be replaced with an event-driven approach (e.g., subscribing to `deck.onViewStateChange` or similar deck.gl lifecycle events). Additional research is required to determine the optimal recalculation triggers and ensure efficient event-driven updates without missing viewport changes.*
+- **Legend Widget**: Displays color scales and data distribution (histogram) for data-driven layers, visualizing value distribution across color bins.
+  - *Implementation: Uses server-side widget source via CARTO SQL API (`useCartoSql`) to count revenue legend applicable stores. This approach queries the full dataset on the server, providing accurate counts across all data regardless of current viewport visibility.*
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+## AI methodology
+- Check [AI METHODOLOGY.md](AI METHODOLOGY.md) file.
+
+## Notes & Limitations
+
+- **Performance**: Large tilesets are handled efficiently by `deck.gl`, but client-side aggregations (Widgets) are debounced to prevent UI freezing during rapid map movements.
+- **Data Source**: The application uses public CARTO demo data.
