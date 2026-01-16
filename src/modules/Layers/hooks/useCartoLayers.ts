@@ -8,6 +8,7 @@ import type {
   LayerLineStyling,
   LayerPointStyling,
 } from "@modules/Layers/types";
+import type { TilejsonResultWithWidgetSource } from "@modules/Widgets/types";
 
 interface CartoConfig {
   apiBaseUrl: string;
@@ -164,7 +165,12 @@ export function useCartoLayers() {
           // Feed loaded tiles into CARTO widgetSource when available (tileset sources only).
           // This enables FE-only widget calculations without running SQL queries.
           onViewportLoad: (tiles) => {
-            Promise.resolve(stableData as any).then((resolved) => {
+            Promise.resolve(
+              stableData as
+                | TilejsonResultWithWidgetSource
+                | Promise<TilejsonResultWithWidgetSource>
+                | null
+            ).then((resolved) => {
               if (resolved?.widgetSource?.loadTiles) {
                 resolved.widgetSource.loadTiles(tiles);
               }

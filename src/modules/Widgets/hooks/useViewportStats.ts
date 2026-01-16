@@ -161,7 +161,7 @@ export function useViewportStats({
         const promise = calculateStatsRef.current?.();
         if (promise) {
           // Attach catch handler immediately to prevent unhandled rejection
-          promise.catch((_err) => {
+          promise.catch(() => {
             // Silently handle AbortError - it's expected when requests are cancelled
             // Don't log or re-throw AbortError to prevent console noise
           });
