@@ -7,29 +7,60 @@ export interface ColorScaleConfig {
   colors: string;
 }
 
-export interface LayerConfig {
+/**
+ * Core identification and data source configuration for a layer
+ */
+export interface LayerIdentity {
   id: string;
   tableName: string;
-
   // TODO.Looks like tileset datasets should be queried using specific approach.
   // Pass the stats table name to the config to enable querying
   // with the base implementation of SQL API.
   statsTableName?: string;
-
   // TODO. just for assessment purposes. we should use the source from the config.
   source: typeof vectorTableSource | typeof vectorTilesetSource;
+}
 
-  pointRadiusMinPixels?: number;
-  getFillColor?: number[];
-  getLineColor?: number[];
-  lineWidthMinPixels?: number;
-
+/**
+ * Visibility control for a layer
+ */
+export interface LayerVisibility {
   visible?: boolean;
-  fillMode?: FillMode;
+}
 
+/**
+ * Fill-related styling configuration
+ */
+export interface LayerFillStyling {
+  fillMode?: FillMode;
   // TODO.It would be great allowing to set fill attribute dynamically.
   // We'll keep it hardcoded to simplify the implementation.
   fillAttribute?: string; // For data-driven styling
-
+  getFillColor?: number[];
   colorScale?: ColorScaleConfig; // Color scale configuration for data-driven styling
 }
+
+/**
+ * Line/outline styling configuration
+ */
+export interface LayerLineStyling {
+  getLineColor?: number[];
+  lineWidthMinPixels?: number;
+}
+
+/**
+ * Point-specific styling configuration
+ */
+export interface LayerPointStyling {
+  pointRadiusMinPixels?: number;
+}
+
+/**
+ * Complete layer configuration combining all styling concerns
+ */
+export interface LayerConfig
+  extends LayerIdentity,
+    LayerVisibility,
+    LayerFillStyling,
+    LayerLineStyling,
+    LayerPointStyling {}
